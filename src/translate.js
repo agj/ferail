@@ -1,4 +1,0 @@
-
-const replaceText = (ass, text) => {
-
-}
