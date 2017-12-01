@@ -1,8 +1,9 @@
 
 const R = require('ramda');
-const fs = require('fs-promise');
+const fs = require('mz/fs');
 const glob = require('glob-promise');
 const xre = require('xregexp');
+const mkdirp = require('mkdirp');
 require('dot-into').install();
 
 const log = R.tap(console.log);
@@ -64,6 +65,8 @@ const processLineVTT = line => line.replace(rubyRE, '<ruby>$1<rt>$2</rt></ruby>'
 	const vttSubtitles = scripts
 		.into(R.map(toVTT(times)));
 
+	mkdirp.sync('output/ass/');
+	mkdirp.sync('output/vtt/');
 	assSubtitles.into(R.forEachObjIndexed((ass, lang) => writeFile(`output/ass/${ lang }.ass`, ass)));
 	vttSubtitles.into(R.forEachObjIndexed((vtt, lang) => writeFile(`output/vtt/${ lang }.vtt`, vtt)));
 })();
