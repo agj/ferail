@@ -45,7 +45,6 @@ const formatVTTLine = (time, line) =>
 const splitLines = script => script.split(/\n(?!  )/).map(R.trim);
 const processLineASS = line => line.replace(/\n  /g, '\\N');
 const rubyRE = xre('(?:｜)?([^｜]+)《(.+)》', 'g');
-log(rubyRE)
 const processLineVTT = line => line.replace(rubyRE, '<ruby>$1<rt>$2</rt></ruby>');
 
 
