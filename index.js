@@ -41,7 +41,7 @@ const toVTT = R.curry((times, lines) =>
 	.into(sub => 'WEBVTT\n\n' + sub)
 );
 const formatVTTLine = (time, line) =>
-	`${ time.start } --> ${ time.end }\n` +
+	`${ time.start }0 --> ${ time.end }0\n` +
 	processLineVTT(line) + '\n';
 const splitLines = script => script.split(/\n(?!  )/).map(R.trim);
 const processLineASS = line => line.replace(/\n  /g, '\\N');
