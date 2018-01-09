@@ -1,6 +1,6 @@
 {
   "name": "ferail",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Separate timing from the editing/translating of subtitles, then combine with this tool.",
   "author": {
     "name": "agj",
