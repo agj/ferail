@@ -1,7 +1,6 @@
 
 const R = require('ramda');
 const fs = require('mz/fs');
-const argv = require('yargs').argv;
 const mkdirp = require('mkdirp');
 const path = require('path');
 const C = require('chalk');
@@ -53,11 +52,25 @@ const rubyRE = /(?:｜)?([^｜]+)《(.+)》/g;
 const processLineVTT = line => line.replace(rubyRE, '<ruby>$1<rt>$2</rt></ruby>');
 
 
+const program = require('commander');
+
 (async () => {
 
-	const timedFilename = path.normalize(argv.times);
-	const outputFolder = path.normalize(argv.out);
-	const scriptFilenames = argv._.map(path.normalize);
+	program
+	.version(await readFile(path.resolve(__dirname, 'package.json')).then(JSON.parse).then(R.prop('version')))
+	.description("Weaves together the timing of one .ass formatted file, with the text of any number of line-break separated plain-text scripts. Outputs .ass and .vtt .")
+	.usage("--times <timed-sub.ass> --out <output-folder> <script-lines.txt ...>")
+	.option(
+		"-t, --times <timed-sub.ass>",
+		"Set .ass file to get timing information from.")
+	.option(
+		"-o, --out <output-folder>",
+		"Set the folder where output subtitle files will be saved in. Defaults to 'output'.")
+	.parse(process.argv);
+
+	const timedFilename = path.normalize(program.times);
+	const outputFolder = path.normalize(program.out ? program.out : 'output');
+	const scriptFilenames = program.args.map(path.normalize);
 
 	const timed = await readFile(timedFilename);
 	const times = toTimes(timed);
@@ -77,15 +90,13 @@ const processLineVTT = line => line.replace(rubyRE, '<ruby>$1<rt>$2</rt></ruby>'
 	assSubtitles.into(R.forEachObjIndexed((ass, lang) => writeFile(`${ outputFolder }/ass/${ lang }.ass`, ass)));
 	vttSubtitles.into(R.forEachObjIndexed((vtt, lang) => writeFile(`${ outputFolder }/vtt/${ lang }.vtt`, vtt)));
 
-	console.log(`Output files to folder '${ outputFolder }'`);
+	console.log(`  Output files to folder '${ outputFolder }'`);
 
 })().catch(err => {
-	console.error(C.red("An error occurred."));
-	console.error(C.red(""));
-	console.error(C.red("This tool converts a group of plain text files with script lines, and matches them to a properly timed .ass subtitle, producing .ass and .vtt subtitle files."));
-	console.error(C.red(""));
-	console.error(C.red("Usage example: subtimes --times timed-sub.ass --out output-folder scripts/*.txt"));
 
+	console.error(C.red("  An error occurred."));
+	program.help();
 	process.exit(1);
+
 });
 

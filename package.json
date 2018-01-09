@@ -1,24 +1,26 @@
 {
-  "name": "subs",
-  "version": "0.0.0",
-  "description": "",
+  "name": "ferail",
+  "version": "1.0.0",
+  "description": "Separate timing from the editing/translating of subtitles, then combine with this tool.",
   "scripts": {
     "test": "node test/"
   },
   "author": "agj",
   "license": "MIT",
-  "private": true,
   "dependencies": {
     "chalk": "^2.3.0",
+    "commander": "^2.12.2",
     "dot-into": "^1.0.2",
     "glob": "^7.1.2",
     "glob-promise": "^3.3.0",
     "mkdirp": "^0.5.1",
     "mz": "^2.7.0",
-    "ramda": "^0.25.0",
-    "yargs": "^10.1.1"
+    "ramda": "^0.25.0"
   },
   "devDependencies": {
     "rimraf": "^2.6.2"
+  },
+  "bin": {
+    "ferail": "bin/ferail"
   }
 }
