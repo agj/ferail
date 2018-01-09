@@ -4,6 +4,7 @@ const fs = require('mz/fs');
 const argv = require('yargs').argv;
 const mkdirp = require('mkdirp');
 const path = require('path');
+const C = require('chalk');
 require('dot-into').install();
 
 
@@ -54,9 +55,12 @@ const processLineVTT = line => line.replace(rubyRE, '<ruby>$1<rt>$2</rt></ruby>'
 
 (async () => {
 
-	const timed = await readFile(argv.times);
+	const timedFilename = path.normalize(argv.times);
+	const outputFolder = path.normalize(argv.out);
+	const scriptFilenames = argv._.map(path.normalize);
+
+	const timed = await readFile(timedFilename);
 	const times = toTimes(timed);
-	const scriptFilenames = argv._;
 	const scripts =
 		await scriptFilenames
 		.map(async filename => [getLanguage(filename), splitLines(await readFile(filename))])
@@ -68,10 +72,20 @@ const processLineVTT = line => line.replace(rubyRE, '<ruby>$1<rt>$2</rt></ruby>'
 	const vttSubtitles = scripts
 		.into(R.map(toVTT(times)));
 
-	mkdirp.sync(argv.out + '/ass/');
-	mkdirp.sync(argv.out + '/vtt/');
-	assSubtitles.into(R.forEachObjIndexed((ass, lang) => writeFile(`${ argv.out }/ass/${ lang }.ass`, ass)));
-	vttSubtitles.into(R.forEachObjIndexed((vtt, lang) => writeFile(`${ argv.out }/vtt/${ lang }.vtt`, vtt)));
+	mkdirp.sync(outputFolder + '/ass/');
+	mkdirp.sync(outputFolder + '/vtt/');
+	assSubtitles.into(R.forEachObjIndexed((ass, lang) => writeFile(`${ outputFolder }/ass/${ lang }.ass`, ass)));
+	vttSubtitles.into(R.forEachObjIndexed((vtt, lang) => writeFile(`${ outputFolder }/vtt/${ lang }.vtt`, vtt)));
 
-})();
+	console.log(`Output files to folder '${ outputFolder }'`);
+
+})().catch(err => {
+	console.error(C.red("An error occurred."));
+	console.error(C.red(""));
+	console.error(C.red("This tool converts a group of plain text files with script lines, and matches them to a properly timed .ass subtitle, producing .ass and .vtt subtitle files."));
+	console.error(C.red(""));
+	console.error(C.red("Usage example: subtimes --times timed-sub.ass --out output-folder scripts/*.txt"));
+
+	process.exit(1);
+});
 
